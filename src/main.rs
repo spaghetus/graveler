@@ -16,10 +16,18 @@ struct Args {
     /// Probability of paralysis
     #[arg(short, long, default_value = "0.25")]
     pub prob: f64,
+    /// Rolls per trial
+    #[arg(short, long, default_value = "231")]
+    pub rolls: u32,
 }
 
 fn main() {
-    let Args { amt, threads, prob } = Args::parse();
+    let Args {
+        amt,
+        threads,
+        prob,
+        rolls,
+    } = Args::parse();
     let prob = Probability::new(prob);
     let start = Instant::now();
     let threads: Vec<_> = (0..threads)
@@ -28,7 +36,7 @@ fn main() {
             std::thread::spawn(move || {
                 let amt = amt / threads;
                 (0..amt)
-                    .map(|_| (0..231).filter(|_| rng.next_bool(prob)).count())
+                    .map(|_| (0..rolls).filter(|_| rng.next_bool(prob)).count())
                     .max()
                     .unwrap_or(0)
             })
